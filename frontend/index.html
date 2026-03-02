@@ -17,14 +17,14 @@
       <div class="progress-bar" id="progress-bar"></div>
     </div>
 
-    <main class="hero" id="hero">
-      <section class="hero-inner">
+    <main class="hero" id="hero-view">
+      <section class="hero-inner fade-up-target">
         <h1 class="headline">BUILD SHARP. SHIP FAST.</h1>
         <p class="subtitle">A minimal workspace for modern teams that move with confidence.</p>
 
-        <form class="cta-row" id="cta-form">
+        <form class="cta-row" id="hero-form">
           <input type="email" placeholder="ENTER WORK EMAIL" aria-label="Email" required />
-          <button type="submit">GET EARLY ACCESS</button>
+          <button type="submit">ENTER APP</button>
         </form>
 
         <div class="profile-row" aria-hidden="true">
@@ -33,6 +33,61 @@
           <span class="avatar">SK</span>
           <span class="avatar">+4K</span>
         </div>
+      </section>
+    </main>
+
+    <main class="app-view hidden" id="app-view">
+      <section class="app-shell fade-up-target">
+        <header class="app-header">
+          <h1 class="app-title">TENANT PROJECT MANAGER</h1>
+          <button type="button" id="logout-btn" class="ghost-btn">LOGOUT</button>
+        </header>
+
+        <section class="auth-panel" id="auth-panel">
+          <h2>LOGIN</h2>
+          <p class="subtitle">Use tenant subdomain from backend tenant provisioning.</p>
+          <form id="login-form" class="form-grid">
+            <input id="subdomain-input" placeholder="TENANT SUBDOMAIN (e.g. acme)" required />
+            <input id="email-input" type="email" placeholder="EMAIL" required />
+            <input id="password-input" type="password" placeholder="PASSWORD" required />
+            <button type="submit">LOGIN</button>
+          </form>
+          <p class="status-text" id="auth-status">Not logged in</p>
+        </section>
+
+        <section class="dashboard hidden" id="dashboard">
+          <nav class="tab-row">
+            <button class="tab-btn active" data-tab="projects">PROJECTS</button>
+            <button class="tab-btn" data-tab="tasks">TASKS</button>
+          </nav>
+
+          <section class="tab-panel" id="projects-panel">
+            <h2>PROJECTS</h2>
+            <form id="project-form" class="form-grid">
+              <input id="project-name" placeholder="PROJECT NAME" required />
+              <input id="project-description" placeholder="DESCRIPTION" />
+              <button type="submit">CREATE PROJECT</button>
+            </form>
+            <button id="refresh-projects" class="ghost-btn" type="button">REFRESH PROJECTS</button>
+            <div id="projects-list" class="list-wrap"></div>
+          </section>
+
+          <section class="tab-panel hidden" id="tasks-panel">
+            <h2>TASKS</h2>
+            <form id="task-form" class="form-grid">
+              <input id="task-title" placeholder="TASK TITLE" required />
+              <input id="task-project-id" type="number" placeholder="PROJECT ID" required />
+              <select id="task-status" aria-label="Task status">
+                <option value="todo">TODO</option>
+                <option value="in_progress">IN_PROGRESS</option>
+                <option value="done">DONE</option>
+              </select>
+              <button type="submit">CREATE TASK</button>
+            </form>
+            <button id="refresh-tasks" class="ghost-btn" type="button">REFRESH TASKS</button>
+            <div id="tasks-list" class="list-wrap"></div>
+          </section>
+        </section>
       </section>
     </main>
 

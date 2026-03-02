@@ -7,7 +7,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "check": "node --check src/server.js",
-    "migrate:public": "node src/db/run-public-migrations.js"
+    "migrate:public": "node src/db/run-public-migrations.js",
+    "seed:demo": "node src/db/seed-demo.js"
   },
   "keywords": [],
   "author": "",

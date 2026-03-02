@@ -40,6 +40,138 @@ body {
   padding: 48px 20px;
 }
 
+.app-view {
+  min-height: 100vh;
+  padding: 64px 18px 24px;
+}
+
+.app-shell {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  border: 2px solid var(--line);
+  background: #fff;
+  padding: 18px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.app-title {
+  margin: 0;
+  font-family: 'Anton', 'Bebas Neue', Impact, sans-serif;
+  letter-spacing: 0.06em;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+}
+
+.auth-panel,
+.dashboard {
+  border-top: 2px solid var(--line);
+  padding-top: 16px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid button,
+.form-grid input,
+.form-grid select,
+.ghost-btn,
+.tab-btn,
+.list-item button {
+  min-height: 46px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0 12px;
+}
+
+.form-grid button,
+.tab-btn.active,
+.list-item button {
+  background: #000;
+  color: #fff;
+}
+
+.form-grid input,
+.form-grid select {
+  width: 100%;
+}
+
+.form-grid input:focus,
+.form-grid select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
+}
+
+.status-text {
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.tab-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tab-btn {
+  cursor: pointer;
+}
+
+.list-wrap {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.list-item {
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.list-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.list-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ghost-btn {
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+.fade-up-target {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.is-ready .fade-up-target {
+  animation: reveal 700ms ease forwards;
+}
+
 .hero-inner {
   width: min(980px, 100%);
   text-align: center;
@@ -186,5 +318,14 @@ body {
 
   .cta-row button {
     border-radius: 4px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

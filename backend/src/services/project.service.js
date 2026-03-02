@@ -1,6 +1,7 @@
 // Project service block: tenant-scoped project business operations.
 const { withTenantTransaction } = require('../config/db');
 const projectRepository = require('../repositories/project.repository');
+const { AppError } = require('../utils/errors');
 
 async function listProjects(tenant, _user) {
   // Read block: uses tenant search_path so only that tenant schema is queried.
@@ -20,7 +21,20 @@ async function createProject(tenant, user, payload) {
   });
 }
 
+async function deleteProject(tenant, projectId) {
+  return withTenantTransaction(tenant.schemaName, async (client) => {
+    const deleted = await projectRepository.deleteProject(client, projectId);
+
+    if (!deleted) {
+      throw new AppError('Project not found', 404);
+    }
+
+    return deleted;
+  });
+}
+
 module.exports = {
   listProjects,
-  createProject
+  createProject,
+  deleteProject
 };

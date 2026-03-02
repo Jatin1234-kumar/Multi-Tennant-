@@ -21,7 +21,19 @@ async function createProject(client, { name, description, createdBy }) {
   return result.rows[0];
 }
 
+async function deleteProject(client, projectId) {
+  const result = await client.query(
+    `DELETE FROM projects
+     WHERE id = $1
+     RETURNING id, name, description, created_by AS "createdBy", created_at AS "createdAt"`,
+    [projectId]
+  );
+
+  return result.rows[0] || null;
+}
+
 module.exports = {
   listProjects,
-  createProject
+  createProject,
+  deleteProject
 };

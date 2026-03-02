@@ -1,5 +1,6 @@
 // Tenant resolver block: maps request host to tenant metadata.
 const tenantService = require('../services/tenant.service');
+const env = require('../config/env');
 const { AppError } = require('../utils/errors');
 
 // Host parsing block: extracts subdomain for localhost and production-style hosts.
@@ -23,7 +24,14 @@ function extractSubdomain(host) {
 // Request guard block: resolves tenant and attaches it to req.tenant.
 async function tenantResolver(req, _res, next) {
   try {
-    const subdomain = extractSubdomain(req.headers.host);
+    // Dev override block: optionally read tenant from trusted header in local development.
+    const headerSubdomain = typeof req.headers['x-tenant-subdomain'] === 'string'
+      ? req.headers['x-tenant-subdomain'].toLowerCase().trim()
+      : null;
+
+    const subdomain = env.allowTenantHeader && headerSubdomain
+      ? headerSubdomain
+      : extractSubdomain(req.headers.host);
 
     if (!subdomain) {
       throw new AppError('Tenant subdomain is missing', 400);

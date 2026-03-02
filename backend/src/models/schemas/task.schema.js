@@ -25,7 +25,27 @@ const listTasksSchema = z.object({
   })
 });
 
+const updateTaskStatusSchema = z.object({
+  body: z.object({
+    status: taskStatusEnum
+  }),
+  params: z.object({
+    taskId: z.coerce.number().int().positive()
+  }),
+  query: z.object({})
+});
+
+const deleteTaskSchema = z.object({
+  body: z.object({}),
+  params: z.object({
+    taskId: z.coerce.number().int().positive()
+  }),
+  query: z.object({})
+});
+
 module.exports = {
   createTaskSchema,
-  listTasksSchema
+  listTasksSchema,
+  updateTaskStatusSchema,
+  deleteTaskSchema
 };

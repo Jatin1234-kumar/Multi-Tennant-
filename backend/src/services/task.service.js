@@ -1,6 +1,7 @@
 // Task service block: tenant-scoped task operations.
 const { withTenantTransaction } = require('../config/db');
 const taskRepository = require('../repositories/task.repository');
+const { AppError } = require('../utils/errors');
 
 async function listTasks(tenant, query) {
   // List block: optionally filters by projectId when query param is provided.
@@ -21,7 +22,33 @@ async function createTask(tenant, payload) {
   });
 }
 
+async function updateTaskStatus(tenant, taskId, status) {
+  return withTenantTransaction(tenant.schemaName, async (client) => {
+    const updated = await taskRepository.updateTaskStatus(client, taskId, status);
+
+    if (!updated) {
+      throw new AppError('Task not found', 404);
+    }
+
+    return updated;
+  });
+}
+
+async function deleteTask(tenant, taskId) {
+  return withTenantTransaction(tenant.schemaName, async (client) => {
+    const deleted = await taskRepository.deleteTask(client, taskId);
+
+    if (!deleted) {
+      throw new AppError('Task not found', 404);
+    }
+
+    return deleted;
+  });
+}
+
 module.exports = {
   listTasks,
-  createTask
+  createTask,
+  updateTaskStatus,
+  deleteTask
 };

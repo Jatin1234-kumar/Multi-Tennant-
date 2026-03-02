@@ -16,7 +16,16 @@ const listProjectsSchema = z.object({
   query: z.object({})
 });
 
+const deleteProjectSchema = z.object({
+  body: z.object({}),
+  params: z.object({
+    projectId: z.coerce.number().int().positive()
+  }),
+  query: z.object({})
+});
+
 module.exports = {
   createProjectSchema,
-  listProjectsSchema
+  listProjectsSchema,
+  deleteProjectSchema
 };

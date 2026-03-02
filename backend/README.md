@@ -9,8 +9,18 @@ Backend starter for shared-database, separate-schema tenancy using Node.js, Expr
    - `npm install`
 3. Run public migrations:
    - `node src/db/run-public-migrations.js`
-4. Start API:
+4. Seed demo tenant and sample data:
+   - `npm run seed:demo`
+5. Start API:
    - `npm run dev`
+
+## Demo login
+
+- Tenant subdomain: `acme`
+- Email: `admin@acme.com`
+- Password: `Password@123`
+
+Frontend sends tenant in header `x-tenant-subdomain`, so login works in local development when `ALLOW_TENANT_HEADER=true`.
 
 ## Core endpoints
 

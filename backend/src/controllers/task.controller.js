@@ -12,7 +12,24 @@ const createTask = asyncHandler(async (req, res) => {
   res.status(201).json({ data: task });
 });
 
+const updateTaskStatus = asyncHandler(async (req, res) => {
+  const task = await taskService.updateTaskStatus(
+    req.tenant,
+    req.validated.params.taskId,
+    req.validated.body.status
+  );
+
+  res.status(200).json({ data: task });
+});
+
+const deleteTask = asyncHandler(async (req, res) => {
+  const deleted = await taskService.deleteTask(req.tenant, req.validated.params.taskId);
+  res.status(200).json({ data: deleted });
+});
+
 module.exports = {
   listTasks,
-  createTask
+  createTask,
+  updateTaskStatus,
+  deleteTask
 };

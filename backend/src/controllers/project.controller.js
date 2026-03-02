@@ -12,7 +12,13 @@ const createProject = asyncHandler(async (req, res) => {
   res.status(201).json({ data: project });
 });
 
+const deleteProject = asyncHandler(async (req, res) => {
+  const deleted = await projectService.deleteProject(req.tenant, req.validated.params.projectId);
+  res.status(200).json({ data: deleted });
+});
+
 module.exports = {
   listProjects,
-  createProject
+  createProject,
+  deleteProject
 };

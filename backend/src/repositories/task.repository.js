@@ -32,7 +32,32 @@ async function createTask(client, { title, status, projectId, assignedTo }) {
   return result.rows[0];
 }
 
+async function updateTaskStatus(client, taskId, status) {
+  const result = await client.query(
+    `UPDATE tasks
+     SET status = $2
+     WHERE id = $1
+     RETURNING id, title, status, project_id AS "projectId", assigned_to AS "assignedTo", created_at AS "createdAt"`,
+    [taskId, status]
+  );
+
+  return result.rows[0] || null;
+}
+
+async function deleteTask(client, taskId) {
+  const result = await client.query(
+    `DELETE FROM tasks
+     WHERE id = $1
+     RETURNING id, title, status, project_id AS "projectId", assigned_to AS "assignedTo", created_at AS "createdAt"`,
+    [taskId]
+  );
+
+  return result.rows[0] || null;
+}
+
 module.exports = {
   listTasks,
-  createTask
+  createTask,
+  updateTaskStatus,
+  deleteTask
 };
