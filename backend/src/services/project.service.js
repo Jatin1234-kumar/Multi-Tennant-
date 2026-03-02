@@ -3,10 +3,18 @@ const { withTenantTransaction } = require('../config/db');
 const projectRepository = require('../repositories/project.repository');
 const { AppError } = require('../utils/errors');
 
-async function listProjects(tenant, _user) {
+async function listProjects(tenant, _user, query) {
   // Read block: uses tenant search_path so only that tenant schema is queried.
   return withTenantTransaction(tenant.schemaName, async (client) => {
-    return projectRepository.listProjects(client);
+    const page = query.page || 1;
+    const pageSize = query.pageSize || 20;
+    const result = await projectRepository.listProjects(client, page, pageSize);
+
+    return {
+      ...result,
+      page,
+      pageSize
+    };
   });
 }
 

@@ -44,14 +44,29 @@
         </header>
 
         <section class="auth-panel" id="auth-panel">
-          <h2>LOGIN</h2>
-          <p class="subtitle">Use tenant subdomain from backend tenant provisioning.</p>
-          <form id="login-form" class="form-grid">
+          <h2>AUTHENTICATION</h2>
+          <p class="subtitle">Login to existing workspace or create a new tenant workspace.</p>
+
+          <nav class="tab-row auth-tabs">
+            <button class="tab-btn active" data-auth-tab="login" type="button">LOGIN</button>
+            <button class="tab-btn" data-auth-tab="register" type="button">CREATE WORKSPACE</button>
+          </nav>
+
+          <form id="login-form" class="form-grid auth-form">
             <input id="subdomain-input" placeholder="TENANT SUBDOMAIN (e.g. acme)" required />
             <input id="email-input" type="email" placeholder="EMAIL" required />
             <input id="password-input" type="password" placeholder="PASSWORD" required />
             <button type="submit">LOGIN</button>
           </form>
+
+          <form id="register-form" class="form-grid auth-form hidden">
+            <input id="workspace-name-input" placeholder="WORKSPACE NAME" required />
+            <input id="workspace-subdomain-input" placeholder="SUBDOMAIN (e.g. acme)" required />
+            <input id="workspace-admin-email" type="email" placeholder="ADMIN EMAIL" required />
+            <input id="workspace-admin-password" type="password" placeholder="ADMIN PASSWORD" required />
+            <button type="submit">CREATE & LOGIN</button>
+          </form>
+
           <p class="status-text" id="auth-status">Not logged in</p>
         </section>
 
@@ -59,6 +74,7 @@
           <nav class="tab-row">
             <button class="tab-btn active" data-tab="projects">PROJECTS</button>
             <button class="tab-btn" data-tab="tasks">TASKS</button>
+            <button class="tab-btn" data-tab="users">USERS</button>
           </nav>
 
           <section class="tab-panel" id="projects-panel">
@@ -86,6 +102,21 @@
             </form>
             <button id="refresh-tasks" class="ghost-btn" type="button">REFRESH TASKS</button>
             <div id="tasks-list" class="list-wrap"></div>
+          </section>
+
+          <section class="tab-panel hidden" id="users-panel">
+            <h2>TEAM USERS</h2>
+            <form id="user-form" class="form-grid">
+              <input id="user-email" type="email" placeholder="USER EMAIL" required />
+              <input id="user-password" type="password" placeholder="TEMP PASSWORD" required />
+              <select id="user-role" aria-label="User role">
+                <option value="Member">MEMBER</option>
+                <option value="Admin">ADMIN</option>
+              </select>
+              <button type="submit">ADD USER</button>
+            </form>
+            <button id="refresh-users" class="ghost-btn" type="button">REFRESH USERS</button>
+            <div id="users-list" class="list-wrap"></div>
           </section>
         </section>
       </section>

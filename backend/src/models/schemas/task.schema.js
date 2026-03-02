@@ -1,5 +1,6 @@
 // Task schema block: validation contracts for task create/list endpoints.
 const { z } = require('zod');
+const env = require('../../config/env');
 
 // Enum block: allowed task lifecycle statuses.
 const taskStatusEnum = z.enum(['todo', 'in_progress', 'done']);
@@ -21,7 +22,9 @@ const listTasksSchema = z.object({
   body: z.object({}),
   params: z.object({}),
   query: z.object({
-    projectId: z.coerce.number().int().positive().optional()
+    projectId: z.coerce.number().int().positive().optional(),
+    page: z.coerce.number().int().positive().default(1),
+    pageSize: z.coerce.number().int().positive().max(env.maxPageSize).default(env.defaultPageSize)
   })
 });
 

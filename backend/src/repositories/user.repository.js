@@ -35,8 +35,34 @@ async function findById(id) {
   return result.rows[0] || null;
 }
 
+async function listByTenant(tenantId, page, pageSize) {
+  const offset = (page - 1) * pageSize;
+
+  const countResult = await query(
+    `SELECT COUNT(*)::int AS total
+     FROM public.users
+     WHERE tenant_id = $1`,
+    [tenantId]
+  );
+
+  const rowsResult = await query(
+    `SELECT id, email, tenant_id AS "tenantId", role, created_at AS "createdAt"
+     FROM public.users
+     WHERE tenant_id = $1
+     ORDER BY id DESC
+     LIMIT $2 OFFSET $3`,
+    [tenantId, pageSize, offset]
+  );
+
+  return {
+    items: rowsResult.rows,
+    total: countResult.rows[0]?.total || 0
+  };
+}
+
 module.exports = {
   findByEmailAndTenant,
   createUser,
-  findById
+  findById,
+  listByTenant
 };

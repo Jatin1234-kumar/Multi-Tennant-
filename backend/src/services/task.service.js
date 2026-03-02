@@ -6,7 +6,15 @@ const { AppError } = require('../utils/errors');
 async function listTasks(tenant, query) {
   // List block: optionally filters by projectId when query param is provided.
   return withTenantTransaction(tenant.schemaName, async (client) => {
-    return taskRepository.listTasks(client, query.projectId || null);
+    const page = query.page || 1;
+    const pageSize = query.pageSize || 20;
+    const result = await taskRepository.listTasks(client, query.projectId || null, page, pageSize);
+
+    return {
+      ...result,
+      page,
+      pageSize
+    };
   });
 }
 

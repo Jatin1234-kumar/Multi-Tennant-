@@ -27,6 +27,9 @@ module.exports = {
   corsAllowedOrigins: process.env.CORS_ALLOWED_ORIGINS || '*',
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX || 200),
+  defaultPageSize: Number(process.env.DEFAULT_PAGE_SIZE || 20),
+  maxPageSize: Number(process.env.MAX_PAGE_SIZE || 100),
+  tenantCacheTtlMs: Number(process.env.TENANT_CACHE_TTL_MS || 60_000),
   platformProvisioningKey: process.env.PLATFORM_PROVISIONING_KEY || '',
   allowTenantHeader: process.env.ALLOW_TENANT_HEADER
     ? process.env.ALLOW_TENANT_HEADER === 'true'

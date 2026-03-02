@@ -9,9 +9,11 @@ Backend starter for shared-database, separate-schema tenancy using Node.js, Expr
    - `npm install`
 3. Run public migrations:
    - `node src/db/run-public-migrations.js`
-4. Seed demo tenant and sample data:
+4. Run tenant migrations for existing tenant schemas:
+   - `npm run migrate:tenants`
+5. Seed demo tenant and sample data:
    - `npm run seed:demo`
-5. Start API:
+6. Start API:
    - `npm run dev`
 
 ## Demo login
@@ -21,6 +23,13 @@ Backend starter for shared-database, separate-schema tenancy using Node.js, Expr
 - Password: `Password@123`
 
 Frontend sends tenant in header `x-tenant-subdomain`, so login works in local development when `ALLOW_TENANT_HEADER=true`.
+
+## Pagination
+
+- `GET /api/v1/projects?page=1&pageSize=20`
+- `GET /api/v1/tasks?page=1&pageSize=20&projectId=1`
+
+Each list response includes a `pagination` object with `page`, `pageSize`, `total`, and `totalPages`.
 
 ## Core endpoints
 

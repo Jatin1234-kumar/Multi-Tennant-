@@ -1,12 +1,22 @@
 // Project repository block: SQL only for project table operations.
-async function listProjects(client) {
+async function listProjects(client, page, pageSize) {
+  const offset = (page - 1) * pageSize;
+
+  const countResult = await client.query('SELECT COUNT(*)::int AS total FROM projects');
+  const total = countResult.rows[0]?.total || 0;
+
   const result = await client.query(
     `SELECT id, name, description, created_by AS "createdBy", created_at AS "createdAt"
      FROM projects
-     ORDER BY id DESC`
+     ORDER BY id DESC
+     LIMIT $1 OFFSET $2`,
+    [pageSize, offset]
   );
 
-  return result.rows;
+  return {
+    items: result.rows,
+    total
+  };
 }
 
 async function createProject(client, { name, description, createdBy }) {

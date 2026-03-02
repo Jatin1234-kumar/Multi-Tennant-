@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "check": "node --check src/server.js",
     "migrate:public": "node src/db/run-public-migrations.js",
+    "migrate:tenants": "node src/db/run-tenant-migrations.js",
     "seed:demo": "node src/db/seed-demo.js"
   },
   "keywords": [],

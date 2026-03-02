@@ -1,5 +1,6 @@
 // Project schema block: validation contracts for project endpoints.
 const { z } = require('zod');
+const env = require('../../config/env');
 
 const createProjectSchema = z.object({
   body: z.object({
@@ -13,7 +14,10 @@ const createProjectSchema = z.object({
 const listProjectsSchema = z.object({
   body: z.object({}),
   params: z.object({}),
-  query: z.object({})
+  query: z.object({
+    page: z.coerce.number().int().positive().default(1),
+    pageSize: z.coerce.number().int().positive().max(env.maxPageSize).default(env.defaultPageSize)
+  })
 });
 
 const deleteProjectSchema = z.object({

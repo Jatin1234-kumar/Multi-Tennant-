@@ -74,6 +74,14 @@ body {
   padding-top: 16px;
 }
 
+.auth-tabs {
+  margin-bottom: 12px;
+}
+
+.auth-form {
+  margin-bottom: 8px;
+}
+
 .form-grid {
   display: grid;
   gap: 10px;
@@ -123,6 +131,7 @@ body {
   display: flex;
   gap: 8px;
   margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 
 .tab-btn {

@@ -1,31 +1,40 @@
-// App state block: stores auth + tenant context for API calls.
+// App state block: runtime auth/session values and list pagination state.
 const state = {
   apiBase: 'http://localhost:4000/api/v1',
   token: localStorage.getItem('token') || '',
-  subdomain: localStorage.getItem('subdomain') || ''
+  subdomain: localStorage.getItem('subdomain') || '',
+  projectsPage: 1,
+  tasksPage: 1,
+  usersPage: 1,
+  pageSize: 20
 };
 
-// Landing bootstrap block: runs initial progress and reveal animations.
+// DOM references block: keeps all selectors centralized.
 const hero = document.querySelector('#hero-view');
 const appView = document.querySelector('#app-view');
 const progressBar = document.querySelector('#progress-bar');
 const heroForm = document.querySelector('#hero-form');
-
-const loginForm = document.querySelector('#login-form');
-const authStatus = document.querySelector('#auth-status');
-const dashboard = document.querySelector('#dashboard');
-const authPanel = document.querySelector('#auth-panel');
 const logoutBtn = document.querySelector('#logout-btn');
 
+const authPanel = document.querySelector('#auth-panel');
+const dashboard = document.querySelector('#dashboard');
+const authStatus = document.querySelector('#auth-status');
+const loginForm = document.querySelector('#login-form');
+const registerForm = document.querySelector('#register-form');
+
 const projectForm = document.querySelector('#project-form');
-const projectsList = document.querySelector('#projects-list');
 const refreshProjectsBtn = document.querySelector('#refresh-projects');
+const projectsList = document.querySelector('#projects-list');
 
 const taskForm = document.querySelector('#task-form');
-const tasksList = document.querySelector('#tasks-list');
 const refreshTasksBtn = document.querySelector('#refresh-tasks');
+const tasksList = document.querySelector('#tasks-list');
 
-// Progress animation block: simple startup loading indicator.
+const userForm = document.querySelector('#user-form');
+const refreshUsersBtn = document.querySelector('#refresh-users');
+const usersList = document.querySelector('#users-list');
+
+// Progress animation block: landing load indicator.
 let progress = 0;
 const timer = window.setInterval(() => {
   progress = Math.min(progress + 8, 100);
@@ -37,14 +46,14 @@ const timer = window.setInterval(() => {
   }
 }, 45);
 
-// Helper block: centralized API call with auth + tenant headers.
-async function api(path, method = 'GET', body) {
+// API helper block: consistent fetch wrapper with headers and error handling.
+async function api(path, method = 'GET', body, includeTenantHeader = true) {
   const response = await fetch(`${state.apiBase}${path}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...(state.token ? { Authorization: `Bearer ${state.token}` } : {}),
-      ...(state.subdomain ? { 'x-tenant-subdomain': state.subdomain } : {})
+      ...(includeTenantHeader && state.subdomain ? { 'x-tenant-subdomain': state.subdomain } : {})
     },
     body: body ? JSON.stringify(body) : undefined
   });
@@ -69,50 +78,54 @@ function showLanding() {
   hero.classList.remove('hidden');
 }
 
-function applyAuthState() {
-  if (state.token && state.subdomain) {
-    authPanel.classList.add('hidden');
-    dashboard.classList.remove('hidden');
-    authStatus.textContent = `Logged in for tenant: ${state.subdomain}`;
-    loadProjects();
-    loadTasks();
-    return;
-  }
-
-  authPanel.classList.remove('hidden');
-  dashboard.classList.add('hidden');
+function setSession(token, subdomain) {
+  state.token = token;
+  state.subdomain = subdomain;
+  localStorage.setItem('token', token);
+  localStorage.setItem('subdomain', subdomain);
 }
 
-function renderProjects(items) {
+function clearSession() {
+  state.token = '';
+  state.subdomain = '';
+  localStorage.removeItem('token');
+  localStorage.removeItem('subdomain');
+}
+
+function renderProjects(items, pagination) {
   if (!items.length) {
     projectsList.innerHTML = '<p class="list-meta">No projects yet.</p>';
     return;
   }
 
-  projectsList.innerHTML = items
-    .map(
-      (project) => `
+  projectsList.innerHTML = `
+    <p class="list-meta">Page ${pagination.page} / ${pagination.totalPages || 1} (Total: ${pagination.total})</p>
+    ${items
+      .map(
+        (project) => `
       <article class="list-item">
         <strong>#${project.id} ${project.name}</strong>
         <div class="list-meta">${project.description || 'No description'}</div>
         <div class="list-actions">
           <button type="button" data-project-delete="${project.id}">DELETE</button>
         </div>
-      </article>
-    `
-    )
-    .join('');
+      </article>`
+      )
+      .join('')}
+  `;
 }
 
-function renderTasks(items) {
+function renderTasks(items, pagination) {
   if (!items.length) {
     tasksList.innerHTML = '<p class="list-meta">No tasks yet.</p>';
     return;
   }
 
-  tasksList.innerHTML = items
-    .map(
-      (task) => `
+  tasksList.innerHTML = `
+    <p class="list-meta">Page ${pagination.page} / ${pagination.totalPages || 1} (Total: ${pagination.total})</p>
+    ${items
+      .map(
+        (task) => `
       <article class="list-item">
         <strong>#${task.id} ${task.title}</strong>
         <div class="list-meta">Status: ${task.status} | Project: ${task.projectId}</div>
@@ -122,16 +135,36 @@ function renderTasks(items) {
           <button type="button" data-task-status="${task.id}" data-status="done">DONE</button>
           <button type="button" data-task-delete="${task.id}">DELETE</button>
         </div>
-      </article>
-    `
-    )
-    .join('');
+      </article>`
+      )
+      .join('')}
+  `;
+}
+
+function renderUsers(items, pagination) {
+  if (!items.length) {
+    usersList.innerHTML = '<p class="list-meta">No users yet.</p>';
+    return;
+  }
+
+  usersList.innerHTML = `
+    <p class="list-meta">Page ${pagination.page} / ${pagination.totalPages || 1} (Total: ${pagination.total})</p>
+    ${items
+      .map(
+        (user) => `
+      <article class="list-item">
+        <strong>#${user.id} ${user.email}</strong>
+        <div class="list-meta">Role: ${user.role}</div>
+      </article>`
+      )
+      .join('')}
+  `;
 }
 
 async function loadProjects() {
   try {
-    const result = await api('/projects');
-    renderProjects(result.data || []);
+    const result = await api(`/projects?page=${state.projectsPage}&pageSize=${state.pageSize}`);
+    renderProjects(result.data || [], result.pagination || { page: 1, total: 0, totalPages: 1 });
   } catch (error) {
     projectsList.innerHTML = `<p class="list-meta">${error.message}</p>`;
   }
@@ -139,21 +172,58 @@ async function loadProjects() {
 
 async function loadTasks() {
   try {
-    const result = await api('/tasks');
-    renderTasks(result.data || []);
+    const result = await api(`/tasks?page=${state.tasksPage}&pageSize=${state.pageSize}`);
+    renderTasks(result.data || [], result.pagination || { page: 1, total: 0, totalPages: 1 });
   } catch (error) {
     tasksList.innerHTML = `<p class="list-meta">${error.message}</p>`;
   }
 }
 
-// CTA behavior block: moves from landing view to full app shell.
+async function loadUsers() {
+  try {
+    const result = await api(`/users?page=${state.usersPage}&pageSize=${state.pageSize}`);
+    renderUsers(result.data || [], result.pagination || { page: 1, total: 0, totalPages: 1 });
+  } catch (error) {
+    usersList.innerHTML = `<p class="list-meta">${error.message}</p>`;
+  }
+}
+
+function applyAuthState() {
+  if (state.token && state.subdomain) {
+    authPanel.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    authStatus.textContent = `Logged in for tenant: ${state.subdomain}`;
+    loadProjects();
+    loadTasks();
+    loadUsers();
+    return;
+  }
+
+  authPanel.classList.remove('hidden');
+  dashboard.classList.add('hidden');
+}
+
+// Landing CTA block: opens product shell from hero.
 heroForm.addEventListener('submit', (event) => {
   event.preventDefault();
   showApp();
   applyAuthState();
 });
 
-// Auth submit block: login against backend and persist session.
+// Auth mode block: switches login vs register forms.
+document.querySelectorAll('[data-auth-tab]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const mode = button.dataset.authTab;
+
+    document.querySelectorAll('[data-auth-tab]').forEach((item) => item.classList.remove('active'));
+    button.classList.add('active');
+
+    loginForm.classList.toggle('hidden', mode !== 'login');
+    registerForm.classList.toggle('hidden', mode !== 'register');
+  });
+});
+
+// Login action block.
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -164,42 +234,58 @@ loginForm.addEventListener('submit', async (event) => {
   try {
     state.subdomain = subdomain;
     const result = await api('/auth/login', 'POST', { email, password });
-    state.token = result.accessToken;
-
-    localStorage.setItem('token', state.token);
-    localStorage.setItem('subdomain', state.subdomain);
-
-    authStatus.textContent = `Logged in for tenant: ${state.subdomain}`;
+    setSession(result.accessToken, subdomain);
+    authStatus.textContent = `Logged in for tenant: ${subdomain}`;
     applyAuthState();
   } catch (error) {
     authStatus.textContent = error.message;
   }
 });
 
-// Logout block: clear local session and reset UI.
+// Workspace registration block: self-onboards tenant + admin and auto-login.
+registerForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const payload = {
+    name: document.querySelector('#workspace-name-input').value.trim(),
+    subdomain: document.querySelector('#workspace-subdomain-input').value.trim().toLowerCase(),
+    adminEmail: document.querySelector('#workspace-admin-email').value.trim().toLowerCase(),
+    adminPassword: document.querySelector('#workspace-admin-password').value
+  };
+
+  try {
+    const result = await api('/onboarding/register-workspace', 'POST', payload, false);
+    setSession(result.accessToken, result.tenant.subdomain);
+    authStatus.textContent = `Workspace created: ${result.tenant.subdomain}`;
+    applyAuthState();
+  } catch (error) {
+    authStatus.textContent = error.message;
+  }
+});
+
+// Logout action block.
 logoutBtn.addEventListener('click', () => {
-  state.token = '';
-  state.subdomain = '';
-  localStorage.removeItem('token');
-  localStorage.removeItem('subdomain');
+  clearSession();
   authStatus.textContent = 'Not logged in';
   showLanding();
   applyAuthState();
 });
 
-// Tab switching block: toggles between project and task workspace.
-document.querySelectorAll('.tab-btn').forEach((button) => {
+// Dashboard tabs block.
+document.querySelectorAll('.tab-btn[data-tab]').forEach((button) => {
   button.addEventListener('click', () => {
     const target = button.dataset.tab;
 
-    document.querySelectorAll('.tab-btn').forEach((item) => item.classList.remove('active'));
+    document.querySelectorAll('.tab-btn[data-tab]').forEach((item) => item.classList.remove('active'));
     button.classList.add('active');
 
     document.querySelector('#projects-panel').classList.toggle('hidden', target !== 'projects');
     document.querySelector('#tasks-panel').classList.toggle('hidden', target !== 'tasks');
+    document.querySelector('#users-panel').classList.toggle('hidden', target !== 'users');
   });
 });
 
+// Project create block.
 projectForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -220,7 +306,6 @@ refreshProjectsBtn.addEventListener('click', loadProjects);
 projectsList.addEventListener('click', async (event) => {
   const target = event.target;
   if (!(target instanceof HTMLButtonElement)) return;
-
   const projectId = target.dataset.projectDelete;
   if (!projectId) return;
 
@@ -233,6 +318,7 @@ projectsList.addEventListener('click', async (event) => {
   }
 });
 
+// Task create block.
 taskForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -274,7 +360,26 @@ tasksList.addEventListener('click', async (event) => {
   }
 });
 
-// Boot block: if prior session exists, skip landing and open app directly.
+// Team user create block.
+userForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const email = document.querySelector('#user-email').value.trim().toLowerCase();
+  const password = document.querySelector('#user-password').value;
+  const role = document.querySelector('#user-role').value;
+
+  try {
+    await api('/users', 'POST', { email, password, role });
+    userForm.reset();
+    loadUsers();
+  } catch (error) {
+    usersList.innerHTML = `<p class="list-meta">${error.message}</p>`;
+  }
+});
+
+refreshUsersBtn.addEventListener('click', loadUsers);
+
+// Boot block: restore existing session.
 if (state.token && state.subdomain) {
   showApp();
 }

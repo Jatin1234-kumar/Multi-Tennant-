@@ -1,23 +1,45 @@
 // Task repository block: SQL only for task table operations.
-async function listTasks(client, projectId) {
+async function listTasks(client, projectId, page, pageSize) {
   const params = [];
-  let whereClause = '';
+  const where = [];
 
   // Dynamic filter block: applies optional project-based filtering.
   if (projectId) {
     params.push(projectId);
-    whereClause = 'WHERE project_id = $1';
+    where.push(`project_id = $${params.length}`);
   }
+
+  const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
+
+  const countResult = await client.query(
+    `SELECT COUNT(*)::int AS total
+     FROM tasks
+     ${whereClause}`,
+    params
+  );
+
+  const total = countResult.rows[0]?.total || 0;
+
+  const offset = (page - 1) * pageSize;
+  params.push(pageSize);
+  params.push(offset);
+
+  const limitPlaceholder = `$${params.length - 1}`;
+  const offsetPlaceholder = `$${params.length}`;
 
   const result = await client.query(
     `SELECT id, title, status, project_id AS "projectId", assigned_to AS "assignedTo", created_at AS "createdAt"
      FROM tasks
      ${whereClause}
-     ORDER BY id DESC`,
+     ORDER BY id DESC
+     LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder}`,
     params
   );
 
-  return result.rows;
+  return {
+    items: result.rows,
+    total
+  };
 }
 
 async function createTask(client, { title, status, projectId, assignedTo }) {

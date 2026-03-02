@@ -3,8 +3,16 @@ const projectService = require('../services/project.service');
 const { asyncHandler } = require('../utils/errors');
 
 const listProjects = asyncHandler(async (req, res) => {
-  const projects = await projectService.listProjects(req.tenant, req.user);
-  res.status(200).json({ data: projects });
+  const result = await projectService.listProjects(req.tenant, req.user, req.validated.query);
+  res.status(200).json({
+    data: result.items,
+    pagination: {
+      page: result.page,
+      pageSize: result.pageSize,
+      total: result.total,
+      totalPages: Math.ceil(result.total / result.pageSize)
+    }
+  });
 });
 
 const createProject = asyncHandler(async (req, res) => {
