@@ -3,6 +3,8 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const nodeEnv = process.env.NODE_ENV || 'development';
+
 const requiredVars = ['DATABASE_URL', 'JWT_ACCESS_SECRET'];
 
 // Startup validation block: fail fast if critical env vars are missing.
@@ -14,7 +16,7 @@ for (const envName of requiredVars) {
 
 // Normalized config export block: keeps parsing/defaults in one place.
 module.exports = {
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv,
   port: Number(process.env.PORT || 4000),
   databaseUrl: process.env.DATABASE_URL,
   dbPoolMax: Number(process.env.DB_POOL_MAX || 10),
@@ -26,5 +28,7 @@ module.exports = {
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX || 200),
   platformProvisioningKey: process.env.PLATFORM_PROVISIONING_KEY || '',
-  allowTenantHeader: process.env.ALLOW_TENANT_HEADER === 'true'
+  allowTenantHeader: process.env.ALLOW_TENANT_HEADER
+    ? process.env.ALLOW_TENANT_HEADER === 'true'
+    : nodeEnv !== 'production'
 };
