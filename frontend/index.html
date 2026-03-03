@@ -50,6 +50,7 @@
           <nav class="tab-row auth-tabs">
             <button class="tab-btn active" data-auth-tab="login" type="button">LOGIN</button>
             <button class="tab-btn" data-auth-tab="register" type="button">CREATE WORKSPACE</button>
+            <button class="tab-btn" data-auth-tab="accept" type="button">ACCEPT INVITE</button>
           </nav>
 
           <form id="login-form" class="form-grid auth-form">
@@ -67,6 +68,12 @@
             <button type="submit">CREATE & LOGIN</button>
           </form>
 
+          <form id="accept-invite-form" class="form-grid auth-form hidden">
+            <input id="invite-token-input" placeholder="INVITE TOKEN" required />
+            <input id="invite-password-input" type="password" placeholder="SET PASSWORD" required />
+            <button type="submit">ACCEPT INVITE</button>
+          </form>
+
           <p class="status-text" id="auth-status">Not logged in</p>
         </section>
 
@@ -75,6 +82,7 @@
             <button class="tab-btn active" data-tab="projects">PROJECTS</button>
             <button class="tab-btn" data-tab="tasks">TASKS</button>
             <button class="tab-btn" data-tab="users">USERS</button>
+            <button class="tab-btn" data-tab="invites">INVITES</button>
           </nav>
 
           <section class="tab-panel" id="projects-panel">
@@ -117,6 +125,21 @@
             </form>
             <button id="refresh-users" class="ghost-btn" type="button">REFRESH USERS</button>
             <div id="users-list" class="list-wrap"></div>
+          </section>
+
+          <section class="tab-panel hidden" id="invites-panel">
+            <h2>INVITES</h2>
+            <form id="invite-form" class="form-grid">
+              <input id="invite-email" type="email" placeholder="INVITE EMAIL" required />
+              <select id="invite-role" aria-label="Invite role">
+                <option value="Member">MEMBER</option>
+                <option value="Admin">ADMIN</option>
+              </select>
+              <button type="submit">SEND INVITE</button>
+            </form>
+            <p class="status-text" id="invite-link-output">Invite link will appear here after creation.</p>
+            <button id="refresh-invites" class="ghost-btn" type="button">REFRESH INVITES</button>
+            <div id="invites-list" class="list-wrap"></div>
           </section>
         </section>
       </section>

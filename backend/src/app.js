@@ -7,6 +7,7 @@ const tenantAccessMiddleware = require('./middleware/tenantAccess');
 const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/auth.routes');
+const inviteRoutes = require('./routes/invite.routes');
 const onboardingRoutes = require('./routes/onboarding.routes');
 const projectRoutes = require('./routes/project.routes');
 const taskRoutes = require('./routes/task.routes');
@@ -28,6 +29,7 @@ app.get('/health', (_req, res) => {
 // Public/system route block: tenant provisioning.
 app.use('/api/v1/system/tenants', tenantRoutes);
 app.use('/api/v1/onboarding', onboardingRoutes);
+app.use('/api/v1/invites', inviteRoutes);
 
 // Tenant-aware auth route block: login requires tenant context from subdomain.
 app.use('/api/v1/auth', tenantResolver, authRoutes);

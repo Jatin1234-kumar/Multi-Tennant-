@@ -14,6 +14,17 @@ async function findBySubdomain(subdomain) {
   return result.rows[0] || null;
 }
 
+async function findById(id) {
+  const result = await query(
+    `SELECT id, name, schema_name AS "schemaName", subdomain, created_at AS "createdAt"
+     FROM public.tenants
+     WHERE id = $1`,
+    [id]
+  );
+
+  return result.rows[0] || null;
+}
+
 async function createTenantAndSchema({ name, subdomain, schemaName, adminEmail, adminPasswordHash }) {
   // Guard block: schema name must match backend-safe pattern.
   assertSchemaName(schemaName);
@@ -47,5 +58,6 @@ async function createTenantAndSchema({ name, subdomain, schemaName, adminEmail, 
 
 module.exports = {
   findBySubdomain,
+  findById,
   createTenantAndSchema
 };

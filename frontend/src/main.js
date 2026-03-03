@@ -1,4 +1,3 @@
-// App state block: runtime auth/session values and list pagination state.
 const state = {
   apiBase: 'http://localhost:4000/api/v1',
   token: localStorage.getItem('token') || '',
@@ -6,10 +5,10 @@ const state = {
   projectsPage: 1,
   tasksPage: 1,
   usersPage: 1,
+  invitesPage: 1,
   pageSize: 20
 };
 
-// DOM references block: keeps all selectors centralized.
 const hero = document.querySelector('#hero-view');
 const appView = document.querySelector('#app-view');
 const progressBar = document.querySelector('#progress-bar');
@@ -21,6 +20,7 @@ const dashboard = document.querySelector('#dashboard');
 const authStatus = document.querySelector('#auth-status');
 const loginForm = document.querySelector('#login-form');
 const registerForm = document.querySelector('#register-form');
+const acceptInviteForm = document.querySelector('#accept-invite-form');
 
 const projectForm = document.querySelector('#project-form');
 const refreshProjectsBtn = document.querySelector('#refresh-projects');
@@ -34,7 +34,11 @@ const userForm = document.querySelector('#user-form');
 const refreshUsersBtn = document.querySelector('#refresh-users');
 const usersList = document.querySelector('#users-list');
 
-// Progress animation block: landing load indicator.
+const inviteForm = document.querySelector('#invite-form');
+const inviteLinkOutput = document.querySelector('#invite-link-output');
+const refreshInvitesBtn = document.querySelector('#refresh-invites');
+const invitesList = document.querySelector('#invites-list');
+
 let progress = 0;
 const timer = window.setInterval(() => {
   progress = Math.min(progress + 8, 100);
@@ -46,7 +50,6 @@ const timer = window.setInterval(() => {
   }
 }, 45);
 
-// API helper block: consistent fetch wrapper with headers and error handling.
 async function api(path, method = 'GET', body, includeTenantHeader = true) {
   const response = await fetch(`${state.apiBase}${path}`, {
     method,
@@ -92,6 +95,10 @@ function clearSession() {
   localStorage.removeItem('subdomain');
 }
 
+function formatPagination(pagination) {
+  return `Page ${pagination.page} / ${pagination.totalPages || 1} (Total: ${pagination.total})`;
+}
+
 function renderProjects(items, pagination) {
   if (!items.length) {
     projectsList.innerHTML = '<p class="list-meta">No projects yet.</p>';
@@ -99,7 +106,7 @@ function renderProjects(items, pagination) {
   }
 
   projectsList.innerHTML = `
-    <p class="list-meta">Page ${pagination.page} / ${pagination.totalPages || 1} (Total: ${pagination.total})</p>
+    <p class="list-meta">${formatPagination(pagination)}</p>
     ${items
       .map(
         (project) => `
@@ -122,7 +129,7 @@ function renderTasks(items, pagination) {
   }
 
   tasksList.innerHTML = `
-    <p class="list-meta">Page ${pagination.page} / ${pagination.totalPages || 1} (Total: ${pagination.total})</p>
+    <p class="list-meta">${formatPagination(pagination)}</p>
     ${items
       .map(
         (task) => `
@@ -148,13 +155,33 @@ function renderUsers(items, pagination) {
   }
 
   usersList.innerHTML = `
-    <p class="list-meta">Page ${pagination.page} / ${pagination.totalPages || 1} (Total: ${pagination.total})</p>
+    <p class="list-meta">${formatPagination(pagination)}</p>
     ${items
       .map(
         (user) => `
       <article class="list-item">
         <strong>#${user.id} ${user.email}</strong>
         <div class="list-meta">Role: ${user.role}</div>
+      </article>`
+      )
+      .join('')}
+  `;
+}
+
+function renderInvites(items, pagination) {
+  if (!items.length) {
+    invitesList.innerHTML = '<p class="list-meta">No pending invites.</p>';
+    return;
+  }
+
+  invitesList.innerHTML = `
+    <p class="list-meta">${formatPagination(pagination)}</p>
+    ${items
+      .map(
+        (invite) => `
+      <article class="list-item">
+        <strong>#${invite.id} ${invite.email}</strong>
+        <div class="list-meta">Role: ${invite.role} | Expires: ${new Date(invite.expiresAt).toLocaleString()}</div>
       </article>`
       )
       .join('')}
@@ -188,6 +215,15 @@ async function loadUsers() {
   }
 }
 
+async function loadInvites() {
+  try {
+    const result = await api(`/invites?page=${state.invitesPage}&pageSize=${state.pageSize}`);
+    renderInvites(result.data || [], result.pagination || { page: 1, total: 0, totalPages: 1 });
+  } catch (error) {
+    invitesList.innerHTML = `<p class="list-meta">${error.message}</p>`;
+  }
+}
+
 function applyAuthState() {
   if (state.token && state.subdomain) {
     authPanel.classList.add('hidden');
@@ -196,6 +232,7 @@ function applyAuthState() {
     loadProjects();
     loadTasks();
     loadUsers();
+    loadInvites();
     return;
   }
 
@@ -203,14 +240,12 @@ function applyAuthState() {
   dashboard.classList.add('hidden');
 }
 
-// Landing CTA block: opens product shell from hero.
 heroForm.addEventListener('submit', (event) => {
   event.preventDefault();
   showApp();
   applyAuthState();
 });
 
-// Auth mode block: switches login vs register forms.
 document.querySelectorAll('[data-auth-tab]').forEach((button) => {
   button.addEventListener('click', () => {
     const mode = button.dataset.authTab;
@@ -220,10 +255,10 @@ document.querySelectorAll('[data-auth-tab]').forEach((button) => {
 
     loginForm.classList.toggle('hidden', mode !== 'login');
     registerForm.classList.toggle('hidden', mode !== 'register');
+    acceptInviteForm.classList.toggle('hidden', mode !== 'accept');
   });
 });
 
-// Login action block.
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -242,7 +277,6 @@ loginForm.addEventListener('submit', async (event) => {
   }
 });
 
-// Workspace registration block: self-onboards tenant + admin and auto-login.
 registerForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -263,7 +297,22 @@ registerForm.addEventListener('submit', async (event) => {
   }
 });
 
-// Logout action block.
+acceptInviteForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const token = document.querySelector('#invite-token-input').value.trim();
+  const password = document.querySelector('#invite-password-input').value;
+
+  try {
+    const result = await api('/invites/accept', 'POST', { token, password }, false);
+    setSession(result.accessToken, result.tenant.subdomain);
+    authStatus.textContent = `Invite accepted for tenant: ${result.tenant.subdomain}`;
+    applyAuthState();
+  } catch (error) {
+    authStatus.textContent = error.message;
+  }
+});
+
 logoutBtn.addEventListener('click', () => {
   clearSession();
   authStatus.textContent = 'Not logged in';
@@ -271,7 +320,6 @@ logoutBtn.addEventListener('click', () => {
   applyAuthState();
 });
 
-// Dashboard tabs block.
 document.querySelectorAll('.tab-btn[data-tab]').forEach((button) => {
   button.addEventListener('click', () => {
     const target = button.dataset.tab;
@@ -282,10 +330,10 @@ document.querySelectorAll('.tab-btn[data-tab]').forEach((button) => {
     document.querySelector('#projects-panel').classList.toggle('hidden', target !== 'projects');
     document.querySelector('#tasks-panel').classList.toggle('hidden', target !== 'tasks');
     document.querySelector('#users-panel').classList.toggle('hidden', target !== 'users');
+    document.querySelector('#invites-panel').classList.toggle('hidden', target !== 'invites');
   });
 });
 
-// Project create block.
 projectForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -318,7 +366,6 @@ projectsList.addEventListener('click', async (event) => {
   }
 });
 
-// Task create block.
 taskForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -360,7 +407,6 @@ tasksList.addEventListener('click', async (event) => {
   }
 });
 
-// Team user create block.
 userForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -379,9 +425,47 @@ userForm.addEventListener('submit', async (event) => {
 
 refreshUsersBtn.addEventListener('click', loadUsers);
 
-// Boot block: restore existing session.
+inviteForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const email = document.querySelector('#invite-email').value.trim().toLowerCase();
+  const role = document.querySelector('#invite-role').value;
+
+  try {
+    const result = await api('/invites', 'POST', { email, role });
+    inviteLinkOutput.textContent = `Invite link: ${result.inviteLink}`;
+    inviteForm.reset();
+    loadInvites();
+  } catch (error) {
+    inviteLinkOutput.textContent = error.message;
+  }
+});
+
+refreshInvitesBtn.addEventListener('click', loadInvites);
+
+function handleInviteTokenFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const inviteToken = params.get('inviteToken');
+
+  if (!inviteToken) {
+    return;
+  }
+
+  showApp();
+  applyAuthState();
+
+  const acceptBtn = document.querySelector('[data-auth-tab="accept"]');
+  if (acceptBtn) {
+    acceptBtn.click();
+  }
+
+  const tokenInput = document.querySelector('#invite-token-input');
+  tokenInput.value = inviteToken;
+}
+
 if (state.token && state.subdomain) {
   showApp();
 }
 
+handleInviteTokenFromUrl();
 applyAuthState();

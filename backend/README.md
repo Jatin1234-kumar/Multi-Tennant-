@@ -34,11 +34,17 @@ Each list response includes a `pagination` object with `page`, `pageSize`, `tota
 ## Core endpoints
 
 - `POST /api/v1/system/tenants` (requires header `x-platform-key`)
+- `POST /api/v1/onboarding/register-workspace`
 - `POST /api/v1/auth/login` (tenant subdomain required)
 - `GET /api/v1/projects`
 - `POST /api/v1/projects`
 - `GET /api/v1/tasks`
 - `POST /api/v1/tasks`
+- `GET /api/v1/users`
+- `POST /api/v1/users`
+- `GET /api/v1/invites`
+- `POST /api/v1/invites`
+- `POST /api/v1/invites/accept`
 
 ## Tenant resolution
 
@@ -56,3 +62,10 @@ Examples:
 - JWT auth + role checks
 - Tenant token-to-subdomain enforcement
 - Never trusts client-sent tenant ID
+
+## Invite flow
+
+1. Admin creates invite (`POST /api/v1/invites`) with email + role.
+2. API returns one-time `inviteLink`.
+3. Invitee opens link and submits password via `POST /api/v1/invites/accept`.
+4. User account is created and JWT is returned for immediate login.
