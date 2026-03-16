@@ -2,11 +2,12 @@
 const express = require('express');
 const authController = require('../controllers/auth.controller');
 const validate = require('../middleware/validate');
-const { loginSchema } = require('../models/schemas/auth.schema');
+const { loginSchema, googleLoginSchema } = require('../models/schemas/auth.schema');
 
 const router = express.Router();
 
 // Login route block: validates payload then authenticates user.
 router.post('/login', validate(loginSchema), authController.login);
+router.post('/google', validate(googleLoginSchema), authController.googleLogin);
 
 module.exports = router;

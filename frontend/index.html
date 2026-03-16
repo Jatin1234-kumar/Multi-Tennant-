@@ -3,148 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Brutalist Landing</title>
+    <title>Tenant SaaS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
-    <div class="progress-track" aria-hidden="true">
-      <div class="progress-bar" id="progress-bar"></div>
-    </div>
-
-    <main class="hero" id="hero-view">
-      <section class="hero-inner fade-up-target">
-        <h1 class="headline">BUILD SHARP. SHIP FAST.</h1>
-        <p class="subtitle">A minimal workspace for modern teams that move with confidence.</p>
-
-        <form class="cta-row" id="hero-form">
-          <input type="email" placeholder="ENTER WORK EMAIL" aria-label="Email" required />
-          <button type="submit">ENTER APP</button>
-        </form>
-
-        <div class="profile-row" aria-hidden="true">
-          <span class="avatar">AJ</span>
-          <span class="avatar">RM</span>
-          <span class="avatar">SK</span>
-          <span class="avatar">+4K</span>
-        </div>
-      </section>
-    </main>
-
-    <main class="app-view hidden" id="app-view">
-      <section class="app-shell fade-up-target">
-        <header class="app-header">
-          <h1 class="app-title">TENANT PROJECT MANAGER</h1>
-          <button type="button" id="logout-btn" class="ghost-btn">LOGOUT</button>
-        </header>
-
-        <section class="auth-panel" id="auth-panel">
-          <h2>AUTHENTICATION</h2>
-          <p class="subtitle">Login to existing workspace or create a new tenant workspace.</p>
-
-          <nav class="tab-row auth-tabs">
-            <button class="tab-btn active" data-auth-tab="login" type="button">LOGIN</button>
-            <button class="tab-btn" data-auth-tab="register" type="button">CREATE WORKSPACE</button>
-            <button class="tab-btn" data-auth-tab="accept" type="button">ACCEPT INVITE</button>
-          </nav>
-
-          <form id="login-form" class="form-grid auth-form">
-            <input id="subdomain-input" placeholder="TENANT SUBDOMAIN (e.g. acme)" required />
-            <input id="email-input" type="email" placeholder="EMAIL" required />
-            <input id="password-input" type="password" placeholder="PASSWORD" required />
-            <button type="submit">LOGIN</button>
-          </form>
-
-          <form id="register-form" class="form-grid auth-form hidden">
-            <input id="workspace-name-input" placeholder="WORKSPACE NAME" required />
-            <input id="workspace-subdomain-input" placeholder="SUBDOMAIN (e.g. acme)" required />
-            <input id="workspace-admin-email" type="email" placeholder="ADMIN EMAIL" required />
-            <input id="workspace-admin-password" type="password" placeholder="ADMIN PASSWORD" required />
-            <button type="submit">CREATE & LOGIN</button>
-          </form>
-
-          <form id="accept-invite-form" class="form-grid auth-form hidden">
-            <input id="invite-token-input" placeholder="INVITE TOKEN" required />
-            <input id="invite-password-input" type="password" placeholder="SET PASSWORD" required />
-            <button type="submit">ACCEPT INVITE</button>
-          </form>
-
-          <p class="status-text" id="auth-status">Not logged in</p>
-        </section>
-
-        <section class="dashboard hidden" id="dashboard">
-          <nav class="tab-row">
-            <button class="tab-btn active" data-tab="projects">PROJECTS</button>
-            <button class="tab-btn" data-tab="tasks">TASKS</button>
-            <button class="tab-btn" data-tab="users">USERS</button>
-            <button class="tab-btn" data-tab="invites">INVITES</button>
-          </nav>
-
-          <section class="tab-panel" id="projects-panel">
-            <h2>PROJECTS</h2>
-            <form id="project-form" class="form-grid">
-              <input id="project-name" placeholder="PROJECT NAME" required />
-              <input id="project-description" placeholder="DESCRIPTION" />
-              <button type="submit">CREATE PROJECT</button>
-            </form>
-            <button id="refresh-projects" class="ghost-btn" type="button">REFRESH PROJECTS</button>
-            <div id="projects-list" class="list-wrap"></div>
-          </section>
-
-          <section class="tab-panel hidden" id="tasks-panel">
-            <h2>TASKS</h2>
-            <form id="task-form" class="form-grid">
-              <input id="task-title" placeholder="TASK TITLE" required />
-              <input id="task-project-id" type="number" placeholder="PROJECT ID" required />
-              <select id="task-status" aria-label="Task status">
-                <option value="todo">TODO</option>
-                <option value="in_progress">IN_PROGRESS</option>
-                <option value="done">DONE</option>
-              </select>
-              <button type="submit">CREATE TASK</button>
-            </form>
-            <button id="refresh-tasks" class="ghost-btn" type="button">REFRESH TASKS</button>
-            <div id="tasks-list" class="list-wrap"></div>
-          </section>
-
-          <section class="tab-panel hidden" id="users-panel">
-            <h2>TEAM USERS</h2>
-            <form id="user-form" class="form-grid">
-              <input id="user-email" type="email" placeholder="USER EMAIL" required />
-              <input id="user-password" type="password" placeholder="TEMP PASSWORD" required />
-              <select id="user-role" aria-label="User role">
-                <option value="Member">MEMBER</option>
-                <option value="Admin">ADMIN</option>
-              </select>
-              <button type="submit">ADD USER</button>
-            </form>
-            <button id="refresh-users" class="ghost-btn" type="button">REFRESH USERS</button>
-            <div id="users-list" class="list-wrap"></div>
-          </section>
-
-          <section class="tab-panel hidden" id="invites-panel">
-            <h2>INVITES</h2>
-            <form id="invite-form" class="form-grid">
-              <input id="invite-email" type="email" placeholder="INVITE EMAIL" required />
-              <select id="invite-role" aria-label="Invite role">
-                <option value="Member">MEMBER</option>
-                <option value="Admin">ADMIN</option>
-              </select>
-              <button type="submit">SEND INVITE</button>
-            </form>
-            <p class="status-text" id="invite-link-output">Invite link will appear here after creation.</p>
-            <button id="refresh-invites" class="ghost-btn" type="button">REFRESH INVITES</button>
-            <div id="invites-list" class="list-wrap"></div>
-          </section>
-        </section>
-      </section>
-    </main>
-
-    <script type="module" src="/src/main.js"></script>
+    <div id="root"></div>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

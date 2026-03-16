@@ -24,6 +24,10 @@ Backend starter for shared-database, separate-schema tenancy using Node.js, Expr
 
 Frontend sends tenant in header `x-tenant-subdomain`, so login works in local development when `ALLOW_TENANT_HEADER=true`.
 
+Google OAuth setup:
+- Backend `.env`: `GOOGLE_CLIENT_ID`
+- Frontend `.env`: `VITE_GOOGLE_CLIENT_ID`
+
 ## Pagination
 
 - `GET /api/v1/projects?page=1&pageSize=20`
@@ -36,6 +40,7 @@ Each list response includes a `pagination` object with `page`, `pageSize`, `tota
 - `POST /api/v1/system/tenants` (requires header `x-platform-key`)
 - `POST /api/v1/onboarding/register-workspace`
 - `POST /api/v1/auth/login` (tenant subdomain required)
+- `POST /api/v1/auth/google` (tenant subdomain required, body: `idToken`)
 - `GET /api/v1/projects`
 - `POST /api/v1/projects`
 - `GET /api/v1/tasks`

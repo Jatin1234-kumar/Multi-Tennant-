@@ -32,6 +32,7 @@ module.exports = {
   tenantCacheTtlMs: Number(process.env.TENANT_CACHE_TTL_MS || 60_000),
   inviteExpiryHours: Number(process.env.INVITE_EXPIRY_HOURS || 72),
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   platformProvisioningKey: process.env.PLATFORM_PROVISIONING_KEY || '',
   allowTenantHeader: process.env.ALLOW_TENANT_HEADER
     ? process.env.ALLOW_TENANT_HEADER === 'true'

@@ -10,6 +10,15 @@ const loginSchema = z.object({
   query: z.object({})
 });
 
+const googleLoginSchema = z.object({
+  body: z.object({
+    idToken: z.string().min(20)
+  }),
+  params: z.object({}),
+  query: z.object({})
+});
+
 module.exports = {
-  loginSchema
+  loginSchema,
+  googleLoginSchema
 };

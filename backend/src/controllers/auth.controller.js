@@ -12,6 +12,16 @@ const login = asyncHandler(async (req, res) => {
   res.status(200).json(result);
 });
 
+const googleLogin = asyncHandler(async (req, res) => {
+  const result = await authService.loginWithGoogle({
+    idToken: req.validated.body.idToken,
+    tenant: req.tenant
+  });
+
+  res.status(200).json(result);
+});
+
 module.exports = {
-  login
+  login,
+  googleLogin
 };
